@@ -79,13 +79,13 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	long ret = 0;
 
-	dev_info(inst->dev, "serving ioctl...");
+	//dev_info(inst->dev, "serving ioctl...");
 
 	switch (cmd) {
 	case BCM2835_SMI_IOC_GET_SETTINGS:{
 		struct smi_settings *settings;
 
-		dev_info(inst->dev, "Reading SMI settings to user.");
+		//dev_info(inst->dev, "Reading SMI settings to user.");
 		settings = bcm2835_smi_get_settings_from_regs(smi_inst);
 		if (copy_to_user((void *)arg, settings,
 				 sizeof(struct smi_settings)))
@@ -95,7 +95,7 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	case BCM2835_SMI_IOC_WRITE_SETTINGS:{
 		struct smi_settings *settings;
 
-		dev_info(inst->dev, "Setting user's SMI settings.");
+		//dev_info(inst->dev, "Setting user's SMI settings.");
 		settings = bcm2835_smi_get_settings_from_regs(smi_inst);
 		if (copy_from_user(settings, (void *)arg,
 				   sizeof(struct smi_settings)))
@@ -105,7 +105,7 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		break;
 	}
 	case BCM2835_SMI_IOC_ADDRESS:
-		dev_info(inst->dev, "SMI address set: 0x%02x", (int)arg);
+		//dev_info(inst->dev, "SMI address set: 0x%02x", (int)arg);
 		bcm2835_smi_set_address(smi_inst, arg);
 		break;
 	default:

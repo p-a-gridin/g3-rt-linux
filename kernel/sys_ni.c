@@ -435,3 +435,7 @@ COND_SYSCALL(setuid16);
 
 /* restartable sequence */
 COND_SYSCALL(rseq);
+
+/* GDS */
+COND_SYSCALL(gds_fpga);
+

@@ -1512,14 +1512,6 @@ config DEBUG_RSEQ
 
 	  If unsure, say N.
 
-config GDS_FPGA
-	bool "Enable gds_fpga() system call" if EXPERT
-	default y
-	help
-	  Enable gds_fpga syscall
-
-	  If unsure, say Y.
-
 config EMBEDDED
 	bool "Embedded system"
 	option allnoconfig_y

@@ -117,7 +117,6 @@ obj-$(CONFIG_TORTURE_TEST) += torture.o
 obj-$(CONFIG_HAS_IOMEM) += iomem.o
 obj-$(CONFIG_ZONE_DEVICE) += memremap.o
 obj-$(CONFIG_RSEQ) += rseq.o
-obj-$(CONFIG_GDS_FPGA) += gds_fpga.o
 
 $(obj)/configs.o: $(obj)/config_data.h
 

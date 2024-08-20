@@ -79,6 +79,7 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	long ret = 0;
 	struct smi_rw_args rw_args;
+    uint8_t buf[512];
 
 	//dev_info(inst->dev, "serving ioctl...");
 
@@ -111,12 +112,26 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         break;
 
     case BCM2835_SMI_IOC_READ:
-        if (copy_from_user(&rw_args, (void *)arg, sizeof(struct smi_rw_args))) {
-            dev_err(inst->dev, "settings copy failed.");
-	    } else {
-	        char str[10];
-	        copy_from_user(str, rw_args.data, rw_args.lentgh);
-            dev_info(inst->dev, "BCM2835_SMI_IOC_READ %d %s", rw_args.lentgh, str);
+        if(copy_from_user(&rw_args, (void *)arg, sizeof(struct smi_rw_args))) {
+            dev_err(inst->dev, "BCM2835_SMI_IOC_READ: arguments copy failed.");
+        } else {
+            bcm2835_smi_read_buf(smi_inst, buf, rw_args.lentgh);
+            ret = copy_to_user(rw_args.data, buf, rw_args.lentgh);
+            if(ret)
+                return -EFAULT;
+            return rw_args.lentgh;
+        }
+        break;
+
+    case BCM2835_SMI_IOC_WRITE:
+        if(copy_from_user(&rw_args, (void *)arg, sizeof(struct smi_rw_args))) {
+            dev_err(inst->dev, "BCM2835_SMI_IOC_WRITE: arguments copy failed.");
+        } else {
+            ret = copy_from_user(buf, rw_args.data, rw_args.lentgh);
+            if(ret)
+                return -EFAULT;
+            bcm2835_smi_write_buf(smi_inst, buf, rw_args.lentgh);
+            return rw_args.lentgh;
         }
         break;
 
@@ -350,7 +365,7 @@ static int bcm2835_smi_dev_probe(struct platform_device *pdev)
 	if (IS_ERR(ptr_err))
 		goto failed_device_create;
 
-	dev_info(inst->dev, "initialised");
+	dev_info(inst->dev, "initialised 1.1");
 
 	return 0;
 

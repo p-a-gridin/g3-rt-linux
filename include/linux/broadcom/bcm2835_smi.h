@@ -51,8 +51,10 @@
 /* IOCTLs 0x100...0x1ff are not device-specific - we can use them */
 #define BCM2835_SMI_IOC_GET_SETTINGS    _IO(BCM2835_SMI_IOC_MAGIC, 0)
 #define BCM2835_SMI_IOC_WRITE_SETTINGS  _IO(BCM2835_SMI_IOC_MAGIC, 1)
-#define BCM2835_SMI_IOC_ADDRESS	 _IO(BCM2835_SMI_IOC_MAGIC, 2)
-#define BCM2835_SMI_IOC_MAX	     2
+#define BCM2835_SMI_IOC_ADDRESS  _IO(BCM2835_SMI_IOC_MAGIC, 2)
+#define BCM2835_SMI_IOC_READ  _IO(BCM2835_SMI_IOC_MAGIC, 3)
+#define BCM2835_SMI_IOC_WRITE _IO(BCM2835_SMI_IOC_MAGIC, 4)
+#define BCM2835_SMI_IOC_MAX	     4
 
 #define SMI_WIDTH_8BIT 0
 #define SMI_WIDTH_16BIT 1
@@ -64,6 +66,11 @@
 #define DMA_BOUNCE_BUFFER_SIZE (1024 * 1024 / 2)
 #define DMA_BOUNCE_BUFFER_COUNT 3
 
+struct smi_rw_args
+{
+    int lentgh;
+    void *data;
+};
 
 struct smi_settings {
 	int data_width;

@@ -10,6 +10,8 @@
 # Normal rules (sorted alphabetically)
 #
 .*
+!.project
+!.cproject
 *.a
 *.asn1.[ch]
 *.bin

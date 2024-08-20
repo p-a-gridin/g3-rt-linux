@@ -78,6 +78,7 @@ static long
 bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	long ret = 0;
+	struct smi_rw_args rw_args;
 
 	//dev_info(inst->dev, "serving ioctl...");
 
@@ -104,10 +105,21 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			bcm2835_smi_set_regs_from_settings(smi_inst);
 		break;
 	}
-	case BCM2835_SMI_IOC_ADDRESS:
-		//dev_info(inst->dev, "SMI address set: 0x%02x", (int)arg);
-		bcm2835_smi_set_address(smi_inst, arg);
-		break;
+    case BCM2835_SMI_IOC_ADDRESS:
+        //dev_info(inst->dev, "SMI address set: 0x%02x", (int)arg);
+        bcm2835_smi_set_address(smi_inst, arg);
+        break;
+
+    case BCM2835_SMI_IOC_READ:
+        if (copy_from_user(&rw_args, (void *)arg, sizeof(struct smi_rw_args))) {
+            dev_err(inst->dev, "settings copy failed.");
+	    } else {
+	        char str[10];
+	        copy_from_user(str, rw_args.data, rw_args.lentgh);
+            dev_info(inst->dev, "BCM2835_SMI_IOC_READ %d %s", rw_args.lentgh, str);
+        }
+        break;
+
 	default:
 		dev_err(inst->dev, "invalid ioctl cmd: %d", cmd);
 		ret = -ENOTTY;

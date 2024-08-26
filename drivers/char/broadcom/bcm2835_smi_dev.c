@@ -74,12 +74,13 @@ static const char *const ioctl_names[] = {
 *   SMI chardev file ops
 *
 ***************************************************************************/
-static long
-bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+#define vvv 12
+static uint8_t *io_user_buf;
+static long bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	long ret = 0;
 	struct smi_rw_args rw_args;
-    uint8_t buf[512];
+    int i;
 
 	//dev_info(inst->dev, "serving ioctl...");
 
@@ -115,10 +116,13 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         if(copy_from_user(&rw_args, (void *)arg, sizeof(struct smi_rw_args))) {
             dev_err(inst->dev, "BCM2835_SMI_IOC_READ: arguments copy failed.");
         } else {
-            bcm2835_smi_read_buf(smi_inst, buf, rw_args.lentgh);
-            ret = copy_to_user(rw_args.data, buf, rw_args.lentgh);
-            if(ret)
-                return -EFAULT;
+            uint8_t *ptr = (uint8_t *)rw_args.data;
+            bcm2835_smi_read_buf(smi_inst, io_user_buf, rw_args.lentgh);
+            //ret = copy_to_user(rw_args.data, io_user_buf, rw_args.lentgh);
+            for(i = 0; i < rw_args.lentgh; i++)
+                ptr[i] = io_user_buf[i];
+//            if(ret)
+//                return -EFAULT;
             return rw_args.lentgh;
         }
         break;
@@ -127,10 +131,13 @@ bcm2835_smi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         if(copy_from_user(&rw_args, (void *)arg, sizeof(struct smi_rw_args))) {
             dev_err(inst->dev, "BCM2835_SMI_IOC_WRITE: arguments copy failed.");
         } else {
-            ret = copy_from_user(buf, rw_args.data, rw_args.lentgh);
-            if(ret)
-                return -EFAULT;
-            bcm2835_smi_write_buf(smi_inst, buf, rw_args.lentgh);
+            uint8_t *ptr = (uint8_t *)rw_args.data;
+//            ret = copy_from_user(io_user_buf, rw_args.data, rw_args.lentgh);
+//            if(ret)
+//                return -EFAULT;
+            for(i = 0; i < rw_args.lentgh; i++)
+                io_user_buf[i] = ptr[i];
+            bcm2835_smi_write_buf(smi_inst, io_user_buf, rw_args.lentgh);
             return rw_args.lentgh;
         }
         break;
@@ -328,6 +335,7 @@ static int bcm2835_smi_dev_probe(struct platform_device *pdev)
 	/* Allocate buffers and instance data */
 
 	inst = devm_kzalloc(dev, sizeof(*inst), GFP_KERNEL);
+	io_user_buf = devm_kzalloc(dev, 512, GFP_KERNEL);
 
 	if (!inst)
 		return -ENOMEM;
@@ -365,7 +373,7 @@ static int bcm2835_smi_dev_probe(struct platform_device *pdev)
 	if (IS_ERR(ptr_err))
 		goto failed_device_create;
 
-	dev_info(inst->dev, "initialised 1.1");
+	dev_info(inst->dev, "initialised 1.%d", vvv);
 
 	return 0;
 
